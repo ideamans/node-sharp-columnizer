@@ -59,8 +59,6 @@ export class ImageColumnizer {
   indent: number = 0
   outdent: number = 0
 
-  background: string = ''
-
   constructor(values: Partial<ImageColumnizer> = {}) {
     Object.assign(this, values)
   }

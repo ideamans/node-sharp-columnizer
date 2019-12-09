@@ -43,6 +43,12 @@ test('outdent', t => {
   t.is(columnizer.maxOriginalHeight(100, 1000), 9900)
 })
 
+test('border-width', t => {
+  const columnizer = t.context.columnizer
+  columnizer.borderWidth = 50
+  t.is(columnizer.maxOriginalHeight(100, 2000), 9000)
+})
+
 test('indent-outdent', t => {
   const columnizer = t.context.columnizer
   columnizer.height = 1100
@@ -68,4 +74,16 @@ test('full-options', t => {
   columnizer.indent = 100
   columnizer.outdent = 100
   t.is(columnizer.maxOriginalHeight(100, 1920), 10000)
+})
+
+test('max-columns1', t => {
+  const columnizer = t.context.columnizer
+  columnizer.maxColumns = 1
+  t.is(columnizer.maxOriginalHeight(100, 10000), 1000)
+})
+
+test('max-columns2', t => {
+  const columnizer = t.context.columnizer
+  columnizer.maxColumns = 2
+  t.is(columnizer.maxOriginalHeight(100, 10000), 2000)
 })

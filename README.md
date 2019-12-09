@@ -11,6 +11,7 @@ const { ImageColumnizer } = require('sharp-columnizer')
   const src = ImageColumnizer.openImageFile('screenshot.png')
   const columinizer = new ImageColumnizer({
     margin: ImageColumnizer.margin(50, 50, 50, 50), // top, right, bottom, left: default 0
+    maxColunns: 2, // less than 1 means Infinity
     gap: 50, // default 0
     align: 'bottom', // default: 'top'
     indent: 100, // default 0

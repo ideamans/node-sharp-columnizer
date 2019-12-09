@@ -19,7 +19,7 @@ test.beforeEach(async t => {
 
   t.context.src = Sharp(Path.join(__dirname, 'images/measure.png'))
 
-  t.context.saveExpect = true
+  t.context.saveExpect = false
 
   const tmpDir = Path.join(__dirname, 'tmp')
   if (!Fs.existsSync(tmpDir)) Fs.mkdirSync(tmpDir)

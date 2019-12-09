@@ -19,7 +19,7 @@ test.beforeEach(async t => {
 
   t.context.src = Sharp(Path.join(__dirname, 'images/measure.png'))
 
-  t.context.saveExpect = true
+  t.context.saveExpect = false
 
   const tmpDir = Path.join(__dirname, 'tmp')
   if (!Fs.existsSync(tmpDir)) Fs.mkdirSync(tmpDir)
@@ -43,6 +43,23 @@ test('single-column', async t => {
 
 test('no-options', async t => {
   const columnizer = t.context.columnizer
+
+  const name = t.title
+  const src = t.context.src
+  const result = await columnizer.composite(src)
+  const tmpFile = Path.join(__dirname, `tmp/${name}.png`)
+  const imgFile = Path.join(__dirname, `images/${name}.png`)
+  if (Fs.existsSync(tmpFile)) Fs.unlinkSync(tmpFile)
+  await result.png({ colors: 256 }).toFile(tmpFile)
+  if (t.context.saveExpect) await result.png({ colors: 256 }).toFile(imgFile)
+
+  t.is(await PngQuality.mse(tmpFile, imgFile), 0)
+})
+
+test('max-columns2', async t => {
+  const columnizer = t.context.columnizer
+  columnizer.maxColumns = 2
+  columnizer.indent = 100
 
   const name = t.title
   const src = t.context.src

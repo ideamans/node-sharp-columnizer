@@ -54,7 +54,7 @@ export class ImageColumnizer {
   }
 
   height: number = 800
-  maxWidth: number = Infinity
+  maxColumns: number = -1
   margin: Margin = new Margin({ top: 0, right: 0, bottom: 0, left: 0 })
   gap: number = 0
 
@@ -70,15 +70,21 @@ export class ImageColumnizer {
     Object.assign(this, values)
   }
 
-  maxOriginalHeight(originalWidth: number, maxWidth?: number) {
-    maxWidth = maxWidth || this.maxWidth
-    if (maxWidth === Infinity) return Infinity
+  maxOriginalHeight(originalWidth: number, maxWidth: number = -1) {
+    if (maxWidth < 0) return Infinity
+    const maxColumns = this.maxColumns < 1 ? Infinity : this.maxColumns
 
-    const heights: Array<number> = [ this.height - this.margin.vertical() - this.outdent ]
+    const maxHeight = this.height - this.margin.vertical() - this.borderWidth * 2
+
+    const heights: Array<number> = [ maxHeight - this.outdent ]
+    const widthes: number[] = []
     let width = originalWidth + this.margin.horizontal()
-    while ( width + originalWidth + this.gap <= maxWidth ) {
-      heights.push(this.height - this.margin.vertical() - this.indent)
-      width += originalWidth + this.gap
+    widthes.push(width)
+    const widthStep = originalWidth + this.gap + this.borderWidth * 2
+    while ( heights.length < maxColumns && width + widthStep <= maxWidth ) {
+      heights.push(maxHeight - this.indent)
+      width += widthStep
+      widthes.push(width)
     }
 
     return heights.reduce((sum, h) => sum + h, 0)
@@ -88,6 +94,7 @@ export class ImageColumnizer {
     if (originalWidth == 0 || originalHeight == 0) {
       return [] as Array<Projection>
     }
+    const maxColumns = this.maxColumns < 1 ? Infinity : this.maxColumns
 
     // Column 0
     const first = new Projection({
@@ -101,7 +108,7 @@ export class ImageColumnizer {
 
     const mapping: Array<Projection> = [first]
     let last = first
-    while( last.offsetBottom() < originalHeight ) {
+    while( mapping.length < maxColumns && last.offsetBottom() < originalHeight ) {
       const column = new Projection({
         top: this.margin.top + this.indent,
         left: last.right() + this.gap,

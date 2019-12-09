@@ -139,3 +139,23 @@ test('full-options', async t => {
 
   t.is(await PngQuality.mse(tmpFile, imgFile), 0)
 })
+
+test('full-options-bottom', async t => {
+  const columnizer = t.context.columnizer
+  columnizer.margin = ImageColumnizer.margin(50, 50, 50, 50)
+  columnizer.gap = 50
+  columnizer.indent = 100
+  columnizer.outdent = 100
+  columnizer.align = 'bottom'
+
+  const name = t.title
+  const src = t.context.src
+  const result = await columnizer.composite(src)
+  const tmpFile = Path.join(__dirname, `tmp/${name}.png`)
+  const imgFile = Path.join(__dirname, `images/${name}.png`)
+  if (Fs.existsSync(tmpFile)) Fs.unlinkSync(tmpFile)
+  await result.png({ colors: 256 }).toFile(tmpFile)
+  if (t.context.saveExpect) await result.png({ colors: 256 }).toFile(imgFile)
+
+  t.is(await PngQuality.mse(tmpFile, imgFile), 0)
+})

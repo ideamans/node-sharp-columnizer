@@ -57,6 +57,8 @@ export class ImageColumnizer {
   maxWidth: number = Infinity
   margin: Margin = new Margin({ top: 0, right: 0, bottom: 0, left: 0 })
   gap: number = 0
+
+  align: 'top'|'bottom' = 'top'
   indent: number = 0
   outdent: number = 0
 
@@ -107,7 +109,11 @@ export class ImageColumnizer {
         height: this.height - this.margin.vertical() - this.indent,
         offsetTop: last.offsetBottom(),
       })
-      if (column.offsetBottom() > originalHeight) column.height = originalHeight - column.offsetTop
+
+      if (column.offsetBottom() > originalHeight) {
+        column.height = originalHeight - column.offsetTop
+        if (this.align == 'bottom') column.top = this.height - this.margin.bottom - column.height
+      }
 
       mapping.push(column)
       last = column

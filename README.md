@@ -12,6 +12,7 @@ const { ImageColumnizer } = require('sharp-columnizer')
   const columinizer = new ImageColumnizer({
     margin: ImageColumnizer.margin(50, 50, 50, 50), // top, right, bottom, left: default 0
     gap: 50, // default 0
+    align: 'bottom', // default: 'top'
     indent: 100, // default 0
     outdent: 100, // default 0
     backgroundColor: '#fff', // default '#0000' // black + alpha0,

@@ -14,6 +14,9 @@ const { ImageColumnizer } = require('sharp-columnizer')
     gap: 50, // default 0
     indent: 100, // default 0
     outdent: 100, // default 0
+    backgroundColor: '#fff', // default '#0000' // black + alpha0,
+    borderWidth: 1, // default: 0 // no border
+    borderColor: '#000', // default: '#000' // black
   })
   const dest = await columnizer.composite()
   // dest is sharp image (https://www.npmjs.com/package/sharp)

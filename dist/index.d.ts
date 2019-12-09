@@ -28,7 +28,6 @@ export declare class ImageColumnizer {
     gap: number;
     indent: number;
     outdent: number;
-    background: string;
     constructor(values?: Partial<ImageColumnizer>);
     maxOriginalHeight(originalWidth: number, maxWidth?: number): number;
     mapping(originalWidth: number, originalHeight: number): Array<Projection>;

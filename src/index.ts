@@ -1,4 +1,5 @@
-import Sharp from 'sharp'
+import Sharp, { SharpOptions } from 'sharp'
+const ColorParse = require('color-parse')
 
 export class Margin {
   top: number = 0
@@ -59,6 +60,10 @@ export class ImageColumnizer {
   indent: number = 0
   outdent: number = 0
 
+  backgroundColor: string = '#0000'
+  borderColor: string = '#000'
+  borderWidth: number = 0
+
   constructor(values: Partial<ImageColumnizer> = {}) {
     Object.assign(this, values)
   }
@@ -81,6 +86,7 @@ export class ImageColumnizer {
     if (originalWidth == 0 || originalHeight == 0) {
       return [] as Array<Projection>
     }
+
     // Column 0
     const first = new Projection({
       top: this.margin.top,
@@ -114,14 +120,60 @@ export class ImageColumnizer {
     return Sharp(path)
   }
 
-  async composite(src: Sharp.Sharp): Promise<Sharp.Sharp> {
+  newCanvas(width: number, height: number, color: string) {
+    const parsed: { space: string, values: [number, number, number], alpha: number} = ColorParse(color)
+    if (parsed.space != 'rgb') throw new Error(`Color ${color} is not RGB color space`)
+
+    const canvas = Sharp({
+      create: {
+        width,
+        height,
+        channels: 4,
+        background: {
+          r: parsed.values[0],
+          g: parsed.values[1],
+          b: parsed.values[2],
+          alpha: parsed.alpha,
+        }
+      }
+    })
+
+    return canvas
+  }
+
+  async border(src: Sharp.Sharp): Promise<Sharp.Sharp> {
+    if (this.borderWidth < 1) return src
+
     const meta = await src.metadata()
+    const canvas = this.newCanvas(
+      (meta.width || 0) + this.borderWidth * 2,
+      (meta.height || 0) + this.borderWidth * 2,
+      this.borderColor
+    )
+
+    const bordered = await canvas.composite([
+      {
+        input: await src.toBuffer(),
+        left: this.borderWidth,
+        top: this.borderWidth,
+        blend: 'over'
+      }
+    ])
+
+    return Sharp(await bordered.png().toBuffer())
+  }
+
+  async composite(src: Sharp.Sharp): Promise<Sharp.Sharp> {
+    // border
+    const bordered = await this.border(src)
+
+    const meta = await bordered.metadata()
     const mapping = this.mapping(meta.width || 0, meta.height || 0)
-    if (mapping.length == 0) throw new Error('Invalid src')
+    if (mapping.length == 0) throw new Error('Invalid bordered src')
 
     // crop
     const composites: Array<Sharp.OverlayOptions> = await Promise.all(mapping.map(projection => {
-      return src.extract({
+      return bordered.extract({
         left: 0,
         top: projection.offsetTop,
         width: projection.width,
@@ -139,16 +191,11 @@ export class ImageColumnizer {
     }))
 
     const last = mapping[mapping.length - 1]
-    const canvas = Sharp({
-      create: {
-        width: last.right() + this.margin.right,
-        height: this.height,
-        channels: 4,
-        background: {
-          r: 0, g: 0, b: 0, alpha: 0,
-        },
-      }
-    })
+    const canvas = this.newCanvas(
+      last.right() + this.margin.right,
+      this.height,
+      this.backgroundColor
+    )
 
     return canvas.composite(composites)
   }

@@ -48,7 +48,6 @@ class ImageColumnizer {
         this.gap = 0;
         this.indent = 0;
         this.outdent = 0;
-        this.background = '';
         Object.assign(this, values);
     }
     static zeroMargin() {

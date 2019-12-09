@@ -82,3 +82,4 @@ typings/
 .dynamodb/
 
 test/tmp
+dist

@@ -146,3 +146,27 @@ test('outdent', t => {
     new Projection({ top: 0, left: 200, width: 100, height: 1, offsetTop: 1900 }),
   ], 'height 2001')
 })
+
+test('align-bottom', t => {
+  const columnizer = t.context.columnizer
+  columnizer.align = 'bottom'
+
+  const columns2 = columnizer.mapping(100, 1999)
+  t.deepEqual(columns2, [
+    new Projection({ top: 0, left: 0, width: 100, height: 1000, offsetTop: 0 }),
+    new Projection({ top: 1, left: 100, width: 100, height: 999, offsetTop: 1000 }),
+  ], 'height 1999')
+
+  const justColumns2 = columnizer.mapping(100, 2000)
+  t.deepEqual(justColumns2, [
+    new Projection({ top: 0, left: 0, width: 100, height: 1000, offsetTop: 0 }),
+    new Projection({ top: 0, left: 100, width: 100, height: 1000, offsetTop: 1000 }),
+  ], 'height 2000')
+
+  const columns3 = columnizer.mapping(100, 2001)
+  t.deepEqual(columns3, [
+    new Projection({ top: 0, left: 0, width: 100, height: 1000, offsetTop: 0 }),
+    new Projection({ top: 0, left: 100, width: 100, height: 1000, offsetTop: 1000 }),
+    new Projection({ top: 999, left: 200, width: 100, height: 1, offsetTop: 2000 }),
+  ], 'height 2001')
+})

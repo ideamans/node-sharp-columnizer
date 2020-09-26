@@ -192,6 +192,7 @@ export class ImageColumnizer {
         width: projection.width,
         height: projection.height
       })
+      .png()
       .toBuffer()
       .then(buffer => {
         const overlay: Sharp.OverlayOptions = {}

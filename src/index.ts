@@ -44,6 +44,8 @@ export class Projection {
   }
 }
 
+export type BeforeCompositeCallback = (canvas: Sharp.Sharp, overlays: Sharp.OverlayOptions[]) => Promise<Sharp.Sharp>
+
 export class ImageColumnizer {
   static zeroMargin() {
     return this.margin(0, 0, 0, 0)
@@ -65,6 +67,8 @@ export class ImageColumnizer {
   backgroundColor: string = '#0000'
   borderColor: string = '#000'
   borderWidth: number = 0
+
+  beforeComposite?: BeforeCompositeCallback
 
   constructor(values: Partial<ImageColumnizer> = {}) {
     Object.assign(this, values)
@@ -173,7 +177,7 @@ export class ImageColumnizer {
       }
     ])
 
-    return Sharp(await bordered.png().toBuffer())
+    return Sharp(await bordered.tiff().toBuffer())
   }
 
   async composite(src: Sharp.Sharp): Promise<Sharp.Sharp> {
@@ -185,14 +189,14 @@ export class ImageColumnizer {
     if (mapping.length == 0) throw new Error('Invalid bordered src')
 
     // crop
-    const composites: Array<Sharp.OverlayOptions> = await Promise.all(mapping.map(projection => {
+    const overlays: Array<Sharp.OverlayOptions> = await Promise.all(mapping.map(projection => {
       return bordered.extract({
         left: 0,
         top: projection.offsetTop,
         width: projection.width,
         height: projection.height
       })
-      .png()
+      .raw()
       .toBuffer()
       .then(buffer => {
         const overlay: Sharp.OverlayOptions = {}
@@ -200,17 +204,26 @@ export class ImageColumnizer {
         overlay.left = projection.left
         overlay.top = projection.top
         overlay.blend = 'over'
+        overlay.raw = {
+          width: projection.width,
+          height: projection.height,
+          channels: meta.channels || 4
+        }
         return overlay
       })
     }))
 
     const last = mapping[mapping.length - 1]
-    const canvas = this.newCanvas(
+    let canvas = this.newCanvas(
       last.right() + this.margin.right,
       this.height,
       this.backgroundColor
     )
 
-    return canvas.composite(composites)
+    if (this.beforeComposite) {
+      canvas = await this.beforeComposite(canvas, overlays)
+    }
+
+    return canvas.composite(overlays)
   }
 }

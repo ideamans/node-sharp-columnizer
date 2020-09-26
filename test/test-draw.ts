@@ -176,3 +176,47 @@ test('full-options-bottom', async t => {
 
   t.is(Math.round(await PngQuality.mse(tmpFile, imgFile)), 0)
 })
+
+test('before-composite-callback', async t => {
+  const columnizer = t.context.columnizer
+  columnizer.margin = ImageColumnizer.margin(50, 50, 50, 50)
+  columnizer.gap = 50
+  columnizer.indent = 100
+  columnizer.outdent = 100
+  columnizer.align = 'bottom'
+  columnizer.beforeComposite = async (canvas, overlays) => {
+    overlays.push({
+      input: {
+        create: {
+          width: 200,
+          height: 100,
+          channels: 4,
+          background: '#000'
+        },
+      },
+      gravity: 'northeast',
+    })
+
+    const meta = await canvas.metadata()
+
+    return Sharp({
+      create: {
+        width: meta.width || 0,
+        height: meta.height || 0,
+        channels: 4,
+        background: '#fff',
+      }
+    })
+  }
+
+  const name = t.title
+  const src = t.context.src
+  const result = await columnizer.composite(src)
+  const tmpFile = Path.join(__dirname, `tmp/${name}.png`)
+  const imgFile = Path.join(__dirname, `images/${name}.png`)
+  if (Fs.existsSync(tmpFile)) Fs.unlinkSync(tmpFile)
+  await result.png({ colors: 256 }).toFile(tmpFile)
+  if (t.context.saveExpect) await result.png({ colors: 256 }).toFile(imgFile)
+
+  t.is(Math.round(await PngQuality.mse(tmpFile, imgFile)), 0)
+})

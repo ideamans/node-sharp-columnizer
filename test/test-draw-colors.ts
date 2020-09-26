@@ -38,7 +38,7 @@ test('background-white', async t => {
   await result.png({ colors: 256 }).toFile(tmpFile)
   if (t.context.saveExpect) await result.png({ colors: 256 }).toFile(imgFile)
 
-  t.is(await PngQuality.mse(tmpFile, imgFile), 0)
+  t.is(Math.round(await PngQuality.mse(tmpFile, imgFile)), 0)
 })
 
 test('background-red', async t => {
@@ -54,7 +54,7 @@ test('background-red', async t => {
   await result.png({ colors: 256 }).toFile(tmpFile)
   if (t.context.saveExpect) await result.png({ colors: 256 }).toFile(imgFile)
 
-  t.is(await PngQuality.mse(tmpFile, imgFile), 0)
+  t.is(Math.round(await PngQuality.mse(tmpFile, imgFile)), 0)
 })
 
 test('border10-red', async t => {
@@ -71,5 +71,5 @@ test('border10-red', async t => {
   await result.png({ colors: 256 }).toFile(tmpFile)
   if (t.context.saveExpect) await result.png({ colors: 256 }).toFile(imgFile)
 
-  t.is(await PngQuality.mse(tmpFile, imgFile), 0)
+  t.is(Math.round(await PngQuality.mse(tmpFile, imgFile)), 0)
 })

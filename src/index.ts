@@ -1,5 +1,6 @@
 import Sharp, { SharpOptions } from 'sharp'
-const ColorParse = require('color-parse')
+import Color from 'color'
+import { cpuUsage } from 'process'
 
 export class Margin {
   top: number = 0
@@ -138,20 +139,14 @@ export class ImageColumnizer {
   }
 
   newCanvas(width: number, height: number, color: string) {
-    const parsed: { space: string, values: [number, number, number], alpha: number} = ColorParse(color)
-    if (parsed.space != 'rgb') throw new Error(`Color ${color} is not RGB color space`)
+    const c = Color(color)
 
     const canvas = Sharp({
       create: {
         width,
         height,
         channels: 4,
-        background: {
-          r: parsed.values[0],
-          g: parsed.values[1],
-          b: parsed.values[2],
-          alpha: parsed.alpha,
-        }
+        background: color
       }
     })
 

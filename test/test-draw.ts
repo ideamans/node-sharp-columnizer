@@ -184,8 +184,8 @@ test('before-composite-callback', async t => {
   columnizer.indent = 100
   columnizer.outdent = 100
   columnizer.align = 'bottom'
-  columnizer.beforeComposite = async (canvas, overlays) => {
-    overlays.push({
+  columnizer.beforeComposite = async (canvas, composisions) => {
+    composisions.push({
       input: {
         create: {
           width: 200,

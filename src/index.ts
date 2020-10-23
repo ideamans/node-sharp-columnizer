@@ -49,7 +49,7 @@ export class Projection {
   }
 }
 
-export type BeforeCompositeCallback = (canvas: Sharp.Sharp, overlays: Sharp.OverlayOptions[]) => Promise<Sharp.Sharp>
+export type BeforeCompositeCallback = (canvas: Sharp.Sharp, compositions: Sharp.OverlayOptions[]) => Promise<Sharp.Sharp>
 
 export class ImageColumnizer {
   static zeroMargin() {
@@ -272,10 +272,12 @@ export class ImageColumnizer {
       this.backgroundColor
     )
 
+    const compositions = [...borders, ...overlays]
+
     if (this.beforeComposite) {
-      canvas = await this.beforeComposite(canvas, [...borders, ...overlays])
+      canvas = await this.beforeComposite(canvas, compositions)
     }
 
-    return canvas.composite(overlays)
+    return canvas.composite(compositions)
   }
 }

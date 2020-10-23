@@ -38,7 +38,7 @@ test('single-column', async t => {
   await result.png({ colors: 256 }).toFile(tmpFile)
   if (t.context.saveExpect) await result.png({ colors: 256 }).toFile(imgFile)
 
-  t.is(Math.round(await PngQuality.mse(tmpFile, imgFile)), 0)
+  t.is(Math.round((await PngQuality.mse(tmpFile, imgFile)) * 100), 0)
 })
 
 test('no-options', async t => {
@@ -53,7 +53,7 @@ test('no-options', async t => {
   await result.png({ colors: 256 }).toFile(tmpFile)
   if (t.context.saveExpect) await result.png({ colors: 256 }).toFile(imgFile)
 
-  t.is(Math.round(await PngQuality.mse(tmpFile, imgFile)), 0)
+  t.is(Math.round((await PngQuality.mse(tmpFile, imgFile)) * 100), 0)
 })
 
 test('max-columns2', async t => {
@@ -70,7 +70,7 @@ test('max-columns2', async t => {
   await result.png({ colors: 256 }).toFile(tmpFile)
   if (t.context.saveExpect) await result.png({ colors: 256 }).toFile(imgFile)
 
-  t.is(Math.round(await PngQuality.mse(tmpFile, imgFile)), 0)
+  t.is(Math.round((await PngQuality.mse(tmpFile, imgFile)) * 100), 0)
 })
 
 test('margins', async t => {
@@ -87,7 +87,7 @@ test('margins', async t => {
   await result.png({ colors: 256 }).toFile(tmpFile)
   if (t.context.saveExpect) await result.png({ colors: 256 }).toFile(imgFile)
 
-  t.is(Math.round(await PngQuality.mse(tmpFile, imgFile)), 0)
+  t.is(Math.round((await PngQuality.mse(tmpFile, imgFile)) * 100), 0)
 })
 
 test('gap', async t => {
@@ -103,7 +103,7 @@ test('gap', async t => {
   await result.png({ colors: 256 }).toFile(tmpFile)
   if (t.context.saveExpect) await result.png({ colors: 256 }).toFile(imgFile)
 
-  t.is(Math.round(await PngQuality.mse(tmpFile, imgFile)), 0)
+  t.is(Math.round((await PngQuality.mse(tmpFile, imgFile)) * 100), 0)
 })
 
 test('indent', async t => {
@@ -119,7 +119,7 @@ test('indent', async t => {
   await result.png({ colors: 256 }).toFile(tmpFile)
   if (t.context.saveExpect) await result.png({ colors: 256 }).toFile(imgFile)
 
-  t.is(Math.round(await PngQuality.mse(tmpFile, imgFile)), 0)
+  t.is(Math.round((await PngQuality.mse(tmpFile, imgFile)) * 100), 0)
 })
 
 test('outdent', async t => {
@@ -135,7 +135,7 @@ test('outdent', async t => {
   await result.png({ colors: 256 }).toFile(tmpFile)
   if (t.context.saveExpect) await result.png({ colors: 256 }).toFile(imgFile)
 
-  t.is(Math.round(await PngQuality.mse(tmpFile, imgFile)), 0)
+  t.is(Math.round((await PngQuality.mse(tmpFile, imgFile)) * 100), 0)
 })
 
 test('full-options', async t => {
@@ -154,7 +154,7 @@ test('full-options', async t => {
   await result.png({ colors: 256 }).toFile(tmpFile)
   if (t.context.saveExpect) await result.png({ colors: 256 }).toFile(imgFile)
 
-  t.is(Math.round(await PngQuality.mse(tmpFile, imgFile)), 0)
+  t.is(Math.round((await PngQuality.mse(tmpFile, imgFile)) * 100), 0)
 })
 
 test('full-options-bottom', async t => {
@@ -174,7 +174,7 @@ test('full-options-bottom', async t => {
   await result.png({ colors: 256 }).toFile(tmpFile)
   if (t.context.saveExpect) await result.png({ colors: 256 }).toFile(imgFile)
 
-  t.is(Math.round(await PngQuality.mse(tmpFile, imgFile)), 0)
+  t.is(Math.round((await PngQuality.mse(tmpFile, imgFile)) * 100), 0)
 })
 
 test('before-composite-callback', async t => {
@@ -218,5 +218,5 @@ test('before-composite-callback', async t => {
   await result.png({ colors: 256 }).toFile(tmpFile)
   if (t.context.saveExpect) await result.png({ colors: 256 }).toFile(imgFile)
 
-  t.is(Math.round(await PngQuality.mse(tmpFile, imgFile)), 0)
+  t.is(Math.round((await PngQuality.mse(tmpFile, imgFile)) * 100), 0)
 })

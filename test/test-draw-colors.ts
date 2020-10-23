@@ -60,7 +60,7 @@ test('background-red', async t => {
 test('border10-red', async t => {
   const columnizer = t.context.columnizer
   columnizer.borderWidth = 10
-  columnizer.borderColor = 'red'
+  columnizer.borderColor = '#f00'
 
   const name = t.title
   const src = t.context.src
@@ -71,5 +71,5 @@ test('border10-red', async t => {
   await result.png({ colors: 256 }).toFile(tmpFile)
   if (t.context.saveExpect) await result.png({ colors: 256 }).toFile(imgFile)
 
-  t.is(Math.round(await PngQuality.mse(tmpFile, imgFile)), 0)
+  t.is(Math.round((await PngQuality.mse(tmpFile, imgFile)) * 100), 0)
 })

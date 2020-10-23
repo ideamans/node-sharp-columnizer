@@ -1,6 +1,7 @@
 import Sharp, { SharpOptions } from 'sharp'
 import Color from 'color'
 import { cpuUsage } from 'process'
+import { threadId } from 'worker_threads'
 
 export class Margin {
   top: number = 0
@@ -27,6 +28,9 @@ export class Projection {
   width: number = 0
   height: number = 0
   offsetTop: number = 0
+
+  isFirst: boolean = false
+  isLast: boolean = false
 
   constructor(values: Partial<Projection> = {}) {
     Object.assign(this, values)
@@ -108,6 +112,7 @@ export class ImageColumnizer {
       width: originalWidth,
       height: this.height - this.margin.vertical() - this.outdent,
       offsetTop: 0,
+      isFirst: true,
     })
     if (first.height > originalHeight) first.height = originalHeight
 
@@ -130,6 +135,8 @@ export class ImageColumnizer {
       mapping.push(column)
       last = column
     }
+
+    last.isLast = true
 
     return mapping
   }
@@ -176,23 +183,65 @@ export class ImageColumnizer {
   }
 
   async composite(src: Sharp.Sharp): Promise<Sharp.Sharp> {
-    // border
-    const bordered = await this.border(src)
+    const rawMeta = await src.metadata()
+    if (!rawMeta.width || !rawMeta.height) throw new Error('invalid metrics')
 
-    const meta = await bordered.metadata()
-    const mapping = this.mapping(meta.width || 0, meta.height || 0)
+    const bordered = this.borderWidth > 0
+
+    const dimension = {
+      width: rawMeta.width,
+      height: rawMeta.height,
+    }
+
+    if (bordered) {
+      dimension.width += this.borderWidth * 2
+      dimension.height += this.borderWidth * 2
+    }
+
+    const mapping = this.mapping(dimension.width, dimension.height)
     if (mapping.length == 0) throw new Error('Invalid bordered src')
 
+    // border background
+    let borders: Array<Sharp.OverlayOptions> = []
+    if (bordered) {
+      borders = mapping.map(projection => {
+        return {
+          input: {
+            create: {
+              width: projection.width,
+              height: projection.height,
+              channels: 4,
+              background: this.borderColor,
+            }
+          },
+          left: projection.left,
+          top: projection.top,
+          blend: 'over',
+        }
+      })
+    }
+
     // crop
-    const overlays: Array<Sharp.OverlayOptions> = await Promise.all(mapping.map(projection => {
-      return bordered.extract({
+    let overlays: Array<Sharp.OverlayOptions> = await Promise.all(mapping.map(projection => {
+      const region = {
         left: 0,
         top: projection.offsetTop,
-        width: projection.width,
+        width: rawMeta.width || 1,
         height: projection.height
-      })
-      .raw()
-      .toBuffer()
+      }
+
+      if (bordered) {
+        if (projection.isFirst) {
+          region.height -= this.borderWidth
+        } else {
+          region.top -= this.borderWidth
+        }
+        if (projection.isLast) {
+          region.height -= this.borderWidth
+        }
+      }
+
+      return src.extract(region).raw().toBuffer()
       .then(buffer => {
         const overlay: Sharp.OverlayOptions = {}
         overlay.input = buffer
@@ -200,10 +249,18 @@ export class ImageColumnizer {
         overlay.top = projection.top
         overlay.blend = 'over'
         overlay.raw = {
-          width: projection.width,
-          height: projection.height,
-          channels: meta.channels || 4
+          width: region.width,
+          height: region.height,
+          channels: rawMeta.channels || 4
         }
+
+        if (bordered) {
+          overlay.left += this.borderWidth
+          if (projection.isFirst) {
+            overlay.top += this.borderWidth
+          }
+        }
+
         return overlay
       })
     }))
@@ -216,7 +273,7 @@ export class ImageColumnizer {
     )
 
     if (this.beforeComposite) {
-      canvas = await this.beforeComposite(canvas, overlays)
+      canvas = await this.beforeComposite(canvas, [...borders, ...overlays])
     }
 
     return canvas.composite(overlays)

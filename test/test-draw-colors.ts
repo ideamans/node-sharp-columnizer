@@ -6,9 +6,9 @@ import anyTest, { TestInterface } from 'ava'
 
 const PngQuality = require('png-quality')
 
-const test = anyTest as TestInterface<{columnizer: ImageColumnizer, src: Sharp.Sharp, saveExpect: boolean}>
+const test = anyTest as TestInterface<{ columnizer: ImageColumnizer; src: Sharp.Sharp; saveExpect: boolean }>
 
-test.beforeEach(async t => {
+test.beforeEach(async (t) => {
   t.context.columnizer = new ImageColumnizer({
     height: 1000,
     margin: ImageColumnizer.margin(50, 50, 50, 50),
@@ -25,7 +25,7 @@ test.beforeEach(async t => {
   if (!Fs.existsSync(tmpDir)) Fs.mkdirSync(tmpDir)
 })
 
-test('background-white', async t => {
+test('background-white', async (t) => {
   const columnizer = t.context.columnizer
   columnizer.backgroundColor = '#fff8'
 
@@ -41,7 +41,7 @@ test('background-white', async t => {
   t.is(Math.round(await PngQuality.mse(tmpFile, imgFile)), 0)
 })
 
-test('background-red', async t => {
+test('background-red', async (t) => {
   const columnizer = t.context.columnizer
   columnizer.backgroundColor = 'red'
 
@@ -57,7 +57,7 @@ test('background-red', async t => {
   t.is(Math.round(await PngQuality.mse(tmpFile, imgFile)), 0)
 })
 
-test('border10-red', async t => {
+test('border10-red', async (t) => {
   const columnizer = t.context.columnizer
   columnizer.borderWidth = 10
   columnizer.borderColor = '#f00'

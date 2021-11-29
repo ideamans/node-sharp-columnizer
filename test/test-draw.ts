@@ -6,15 +6,15 @@ import anyTest, { TestInterface } from 'ava'
 
 const PngQuality = require('png-quality')
 
-const test = anyTest as TestInterface<{columnizer: ImageColumnizer, src: Sharp.Sharp, saveExpect: boolean}>
+const test = anyTest as TestInterface<{ columnizer: ImageColumnizer; src: Sharp.Sharp; saveExpect: boolean }>
 
-test.beforeEach(async t => {
+test.beforeEach(async (t) => {
   t.context.columnizer = new ImageColumnizer({
     height: 1000,
     margin: ImageColumnizer.zeroMargin(),
     gap: 0,
     indent: 0,
-    outdent: 0
+    outdent: 0,
   })
 
   t.context.src = Sharp(Path.join(__dirname, 'images/measure.png'))
@@ -25,7 +25,7 @@ test.beforeEach(async t => {
   if (!Fs.existsSync(tmpDir)) Fs.mkdirSync(tmpDir)
 })
 
-test('single-column', async t => {
+test('single-column', async (t) => {
   const columnizer = t.context.columnizer
   columnizer.height = 2100
 
@@ -41,7 +41,7 @@ test('single-column', async t => {
   t.is(Math.round((await PngQuality.mse(tmpFile, imgFile)) * 100), 0)
 })
 
-test('no-options', async t => {
+test('no-options', async (t) => {
   const columnizer = t.context.columnizer
 
   const name = t.title
@@ -56,7 +56,7 @@ test('no-options', async t => {
   t.is(Math.round((await PngQuality.mse(tmpFile, imgFile)) * 100), 0)
 })
 
-test('max-columns2', async t => {
+test('max-columns2', async (t) => {
   const columnizer = t.context.columnizer
   columnizer.maxColumns = 2
   columnizer.indent = 100
@@ -73,7 +73,7 @@ test('max-columns2', async t => {
   t.is(Math.round((await PngQuality.mse(tmpFile, imgFile)) * 100), 0)
 })
 
-test('margins', async t => {
+test('margins', async (t) => {
   const columnizer = t.context.columnizer
   columnizer.height = 1020
   columnizer.margin = ImageColumnizer.margin(10, 10, 10, 10)
@@ -90,7 +90,7 @@ test('margins', async t => {
   t.is(Math.round((await PngQuality.mse(tmpFile, imgFile)) * 100), 0)
 })
 
-test('gap', async t => {
+test('gap', async (t) => {
   const columnizer = t.context.columnizer
   columnizer.gap = 10
 
@@ -106,7 +106,7 @@ test('gap', async t => {
   t.is(Math.round((await PngQuality.mse(tmpFile, imgFile)) * 100), 0)
 })
 
-test('indent', async t => {
+test('indent', async (t) => {
   const columnizer = t.context.columnizer
   columnizer.indent = 100
 
@@ -122,7 +122,7 @@ test('indent', async t => {
   t.is(Math.round((await PngQuality.mse(tmpFile, imgFile)) * 100), 0)
 })
 
-test('outdent', async t => {
+test('outdent', async (t) => {
   const columnizer = t.context.columnizer
   columnizer.outdent = 100
 
@@ -138,7 +138,7 @@ test('outdent', async t => {
   t.is(Math.round((await PngQuality.mse(tmpFile, imgFile)) * 100), 0)
 })
 
-test('full-options', async t => {
+test('full-options', async (t) => {
   const columnizer = t.context.columnizer
   columnizer.margin = ImageColumnizer.margin(50, 50, 50, 50)
   columnizer.gap = 50
@@ -157,7 +157,7 @@ test('full-options', async t => {
   t.is(Math.round((await PngQuality.mse(tmpFile, imgFile)) * 100), 0)
 })
 
-test('full-options-bottom', async t => {
+test('full-options-bottom', async (t) => {
   const columnizer = t.context.columnizer
   columnizer.margin = ImageColumnizer.margin(50, 50, 50, 50)
   columnizer.gap = 50
@@ -177,7 +177,7 @@ test('full-options-bottom', async t => {
   t.is(Math.round((await PngQuality.mse(tmpFile, imgFile)) * 100), 0)
 })
 
-test('before-composite-callback', async t => {
+test('before-composite-callback', async (t) => {
   const columnizer = t.context.columnizer
   columnizer.margin = ImageColumnizer.margin(50, 50, 50, 50)
   columnizer.gap = 50
@@ -191,7 +191,7 @@ test('before-composite-callback', async t => {
           width: 200,
           height: 100,
           channels: 4,
-          background: '#000'
+          background: '#000',
         },
       },
       gravity: 'northeast',
@@ -205,7 +205,7 @@ test('before-composite-callback', async t => {
         height: meta.height || 0,
         channels: 4,
         background: '#fff',
-      }
+      },
     })
   }
 

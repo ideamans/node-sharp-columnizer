@@ -49,7 +49,10 @@ export class Projection {
   }
 }
 
-export type BeforeCompositeCallback = (canvas: Sharp.Sharp, compositions: Sharp.OverlayOptions[]) => Promise<Sharp.Sharp>
+export type BeforeCompositeCallback = (
+  canvas: Sharp.Sharp,
+  compositions: Sharp.OverlayOptions[]
+) => Promise<Sharp.Sharp>
 
 export class ImageColumnizer {
   static zeroMargin() {
@@ -65,7 +68,7 @@ export class ImageColumnizer {
   margin: Margin = new Margin({ top: 0, right: 0, bottom: 0, left: 0 })
   gap: number = 0
 
-  align: 'top'|'bottom' = 'top'
+  align: 'top' | 'bottom' = 'top'
   indent: number = 0
   outdent: number = 0
 
@@ -85,12 +88,12 @@ export class ImageColumnizer {
 
     const maxHeight = this.height - this.margin.vertical() - this.borderWidth * 2
 
-    const heights: Array<number> = [ maxHeight - this.outdent ]
+    const heights: Array<number> = [maxHeight - this.outdent]
     const widthes: number[] = []
     let width = originalWidth + this.margin.horizontal()
     widthes.push(width)
     const widthStep = originalWidth + this.gap + this.borderWidth * 2
-    while ( heights.length < maxColumns && width + widthStep <= maxWidth ) {
+    while (heights.length < maxColumns && width + widthStep <= maxWidth) {
       heights.push(maxHeight - this.indent)
       width += widthStep
       widthes.push(width)
@@ -118,7 +121,7 @@ export class ImageColumnizer {
 
     const mapping: Array<Projection> = [first]
     let last = first
-    while( mapping.length < maxColumns && last.offsetBottom() < originalHeight ) {
+    while (mapping.length < maxColumns && last.offsetBottom() < originalHeight) {
       const column = new Projection({
         top: this.margin.top + this.indent,
         left: last.right() + this.gap,
@@ -153,8 +156,8 @@ export class ImageColumnizer {
         width,
         height,
         channels: 4,
-        background: color
-      }
+        background: color,
+      },
     })
 
     return canvas
@@ -175,8 +178,8 @@ export class ImageColumnizer {
         input: await src.toBuffer(),
         left: this.borderWidth,
         top: this.borderWidth,
-        blend: 'over'
-      }
+        blend: 'over',
+      },
     ])
 
     return Sharp(await bordered.tiff().toBuffer())
@@ -204,7 +207,7 @@ export class ImageColumnizer {
     // border background
     let borders: Array<Sharp.OverlayOptions> = []
     if (bordered) {
-      borders = mapping.map(projection => {
+      borders = mapping.map((projection) => {
         return {
           input: {
             create: {
@@ -212,7 +215,7 @@ export class ImageColumnizer {
               height: projection.height,
               channels: 4,
               background: this.borderColor,
-            }
+            },
           },
           left: projection.left,
           top: projection.top,
@@ -222,55 +225,56 @@ export class ImageColumnizer {
     }
 
     // crop
-    let overlays: Array<Sharp.OverlayOptions> = await Promise.all(mapping.map(projection => {
-      const region = {
-        left: 0,
-        top: projection.offsetTop,
-        width: rawMeta.width || 1,
-        height: projection.height
-      }
-
-      if (bordered) {
-        if (projection.isFirst) {
-          region.height -= this.borderWidth
-        } else {
-          region.top -= this.borderWidth
-        }
-        if (projection.isLast) {
-          region.height -= this.borderWidth
-        }
-      }
-
-      return src.extract(region).raw().toBuffer()
-      .then(buffer => {
-        const overlay: Sharp.OverlayOptions = {}
-        overlay.input = buffer
-        overlay.left = projection.left
-        overlay.top = projection.top
-        overlay.blend = 'over'
-        overlay.raw = {
-          width: region.width,
-          height: region.height,
-          channels: rawMeta.channels || 4
+    let overlays: Array<Sharp.OverlayOptions> = await Promise.all(
+      mapping.map((projection) => {
+        const region = {
+          left: 0,
+          top: projection.offsetTop,
+          width: rawMeta.width || 1,
+          height: projection.height,
         }
 
         if (bordered) {
-          overlay.left += this.borderWidth
           if (projection.isFirst) {
-            overlay.top += this.borderWidth
+            region.height -= this.borderWidth
+          } else {
+            region.top -= this.borderWidth
+          }
+          if (projection.isLast) {
+            region.height -= this.borderWidth
           }
         }
 
-        return overlay
+        return src
+          .extract(region)
+          .raw()
+          .toBuffer()
+          .then((buffer) => {
+            const overlay: Sharp.OverlayOptions = {}
+            overlay.input = buffer
+            overlay.left = projection.left
+            overlay.top = projection.top
+            overlay.blend = 'over'
+            overlay.raw = {
+              width: region.width,
+              height: region.height,
+              channels: rawMeta.channels || 4,
+            }
+
+            if (bordered) {
+              overlay.left += this.borderWidth
+              if (projection.isFirst) {
+                overlay.top += this.borderWidth
+              }
+            }
+
+            return overlay
+          })
       })
-    }))
+    )
 
     const last = mapping[mapping.length - 1]
-    let canvas = this.newCanvas(
-      last.right() + this.margin.right,
-      this.height,
-      this.backgroundColor
-    )
+    let canvas = this.newCanvas(last.right() + this.margin.right, this.height, this.backgroundColor)
 
     const compositions = [...borders, ...overlays]
 

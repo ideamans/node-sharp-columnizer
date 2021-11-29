@@ -8,7 +8,8 @@
     "test": "ava-ts -v test/**/test-*.ts",
     "watch": "ava-ts -vw test/**/test-*.ts",
     "build": "tsc",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "prettier": "prettier --write ."
   },
   "devDependencies": {
     "@types/color": "^3.0.1",
@@ -19,6 +20,7 @@
     "ava-ts": "^0.25.2",
     "png-quality": "^1.0.1",
     "pngjs": "^3.4.0",
+    "prettier": "^2.5.0",
     "ts-node": "^9.0.0",
     "typescript": "^4.0.3"
   },

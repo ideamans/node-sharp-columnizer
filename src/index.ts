@@ -89,14 +89,14 @@ export class ImageColumnizer {
     const maxHeight = this.height - this.margin.vertical() - this.borderWidth * 2
 
     const heights: Array<number> = [maxHeight - this.outdent]
-    const widthes: number[] = []
+    const widths: number[] = []
     let width = originalWidth + this.margin.horizontal()
-    widthes.push(width)
+    widths.push(width)
     const widthStep = originalWidth + this.gap + this.borderWidth * 2
     while (heights.length < maxColumns && width + widthStep <= maxWidth) {
       heights.push(maxHeight - this.indent)
       width += widthStep
-      widthes.push(width)
+      widths.push(width)
     }
 
     return heights.reduce((sum, h) => sum + h, 0)

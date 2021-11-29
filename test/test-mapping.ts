@@ -13,7 +13,7 @@ test.beforeEach((t) => {
   })
 })
 
-test('single-colunn', (t) => {
+test('single-column', (t) => {
   const columnizer = t.context.columnizer
 
   const columns1 = columnizer.mapping(100, 999)

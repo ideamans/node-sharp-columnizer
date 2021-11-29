@@ -82,6 +82,28 @@ export class ImageColumnizer {
     Object.assign(this, values)
   }
 
+  estimateSourceHeightFromColumnWidth(lines: number): number {
+    lines = Math.max(1, lines)
+    const heights: number[] = []
+    for (let i = 0; i < lines; i++) {
+      let height = this.height - this.margin.top - this.margin.bottom
+      if (i == 0) height -= this.outdent
+      else height -= this.indent
+      heights.push(height)
+    }
+
+    return heights.reduce((total, height) => total + height, 0)
+  }
+
+  estimateSourceMetricsFromTotalWidth(totalWidth: number, lines: number): { width: number; height: number } {
+    lines = Math.max(1, lines)
+    const height = this.estimateSourceHeightFromColumnWidth(lines)
+    const width = Math.floor(
+      (totalWidth - this.margin.left - this.margin.right - this.gap * Math.max(0, lines - 1)) / lines
+    )
+    return { width, height }
+  }
+
   maxOriginalHeight(originalWidth: number, maxWidth: number = -1) {
     if (maxWidth < 0) return Infinity
     const maxColumns = this.maxColumns < 1 ? Infinity : this.maxColumns

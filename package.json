@@ -1,6 +1,6 @@
 {
   "name": "sharp-columnizer",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "main": "dist/index.js",
   "license": "MIT",
   "description": "Columinizes tall image like a web page screenshot to easy to see on PC screen.",

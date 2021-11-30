@@ -44,3 +44,14 @@ test('estimate multi lines with gap, indent and outdent', (t) => {
   const metrics = t.context.columnizer.estimateSourceMetricsFromTotalWidth(300, 3)
   t.deepEqual(metrics, { width: 80, height })
 })
+
+test('estimate multi lines with gap, indent, outdent and border', (t) => {
+  t.context.columnizer.gap = 30
+  t.context.columnizer.outdent = 100
+  t.context.columnizer.indent = 100
+  t.context.columnizer.borderWidth = 10
+  const height = t.context.columnizer.estimateSourceHeightFromColumnWidth(3)
+  t.is(height, 2680)
+  const metrics = t.context.columnizer.estimateSourceMetricsFromTotalWidth(300, 3)
+  t.deepEqual(metrics, { width: 60, height })
+})

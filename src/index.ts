@@ -3,23 +3,11 @@ import Color from 'color'
 import { cpuUsage } from 'process'
 import { threadId } from 'worker_threads'
 
-export class Margin {
-  top: number = 0
-  bottom: number = 0
-  left: number = 0
-  right: number = 0
-
-  constructor(values: Partial<Margin> = {}) {
-    Object.assign(this, values)
-  }
-
-  vertical() {
-    return this.top + this.bottom
-  }
-
-  horizontal() {
-    return this.left + this.right
-  }
+export type Margin = {
+  top: number
+  bottom: number
+  left: number
+  right: number
 }
 
 export class Projection {
@@ -33,7 +21,13 @@ export class Projection {
   isLast: boolean = false
 
   constructor(values: Partial<Projection> = {}) {
-    Object.assign(this, values)
+    if (values.top !== undefined) this.top = values.top
+    if (values.left !== undefined) this.left = values.left
+    if (values.width !== undefined) this.width = values.width
+    if (values.height !== undefined) this.height = values.height
+    if (values.offsetTop !== undefined) this.offsetTop = values.offsetTop
+    if (values.isFirst !== undefined) this.isFirst = values.isFirst
+    if (values.isLast !== undefined) this.isLast = values.isLast
   }
 
   right() {
@@ -60,12 +54,12 @@ export class ImageColumnizer {
   }
 
   static margin(top = 0, right = 0, bottom = 0, left = 0) {
-    return new Margin({ top, right, bottom, left })
+    return { top, right, bottom, left }
   }
 
   height: number = 800
   maxColumns: number = -1
-  margin: Margin = new Margin({ top: 0, right: 0, bottom: 0, left: 0 })
+  margin: Margin = { top: 0, right: 0, bottom: 0, left: 0 }
   gap: number = 0
 
   align: 'top' | 'bottom' = 'top'
@@ -87,8 +81,10 @@ export class ImageColumnizer {
     const heights: number[] = []
     for (let i = 0; i < lines; i++) {
       let height = this.height - this.margin.top - this.margin.bottom
-      if (i == 0) height -= this.outdent
+      if (i === 0) height -= this.outdent
       else height -= this.indent
+      if (i === 0) height -= this.borderWidth
+      if (i === lines - 1) height -= this.borderWidth
       heights.push(height)
     }
 
@@ -98,9 +94,9 @@ export class ImageColumnizer {
   estimateSourceMetricsFromTotalWidth(totalWidth: number, lines: number): { width: number; height: number } {
     lines = Math.max(1, lines)
     const height = this.estimateSourceHeightFromColumnWidth(lines)
-    const width = Math.floor(
-      (totalWidth - this.margin.left - this.margin.right - this.gap * Math.max(0, lines - 1)) / lines
-    )
+    const width =
+      Math.floor((totalWidth - this.margin.left - this.margin.right - this.gap * Math.max(0, lines - 1)) / lines) -
+      this.borderWidth * 2
     return { width, height }
   }
 
@@ -108,11 +104,11 @@ export class ImageColumnizer {
     if (maxWidth < 0) return Infinity
     const maxColumns = this.maxColumns < 1 ? Infinity : this.maxColumns
 
-    const maxHeight = this.height - this.margin.vertical() - this.borderWidth * 2
+    const maxHeight = this.height - (this.margin.top + this.margin.bottom) - this.borderWidth * 2
 
     const heights: Array<number> = [maxHeight - this.outdent]
     const widths: number[] = []
-    let width = originalWidth + this.margin.horizontal()
+    let width = originalWidth + (this.margin.left + this.margin.right)
     widths.push(width)
     const widthStep = originalWidth + this.gap + this.borderWidth * 2
     while (heights.length < maxColumns && width + widthStep <= maxWidth) {
@@ -135,7 +131,7 @@ export class ImageColumnizer {
       top: this.margin.top,
       left: this.margin.left,
       width: originalWidth,
-      height: this.height - this.margin.vertical() - this.outdent,
+      height: this.height - (this.margin.top + this.margin.bottom) - this.outdent,
       offsetTop: 0,
       isFirst: true,
     })
@@ -148,7 +144,7 @@ export class ImageColumnizer {
         top: this.margin.top + this.indent,
         left: last.right() + this.gap,
         width: originalWidth,
-        height: this.height - this.margin.vertical() - this.indent,
+        height: this.height - (this.margin.top + this.margin.bottom) - this.indent,
         offsetTop: last.offsetBottom(),
       })
 
